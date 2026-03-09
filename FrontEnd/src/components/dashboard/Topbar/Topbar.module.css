@@ -1,0 +1,39 @@
+.topbar {
+  color:rgb(245, 242, 242);
+  position: fixed;
+  top: 0;
+  left: 220px;
+
+  width: calc(100% - 220px);
+  height: 45px;
+ background: linear-gradient(145deg, #16354e, #78a5ce);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+
+  padding: 0 16px;
+  z-index: 1000;
+}
+
+.topbarLeft {
+  padding: 10px;
+}
+
+.topbarRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* TopbarRing*/
+
+.bellIcon{
+  color:rgb(243, 222, 148);
+}

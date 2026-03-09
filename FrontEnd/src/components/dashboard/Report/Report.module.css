@@ -1,0 +1,92 @@
+.container {
+  position:sticky;
+  left:220px;
+  top:45px;
+  width:calc(100% - 220px);
+  height:100%;
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(145deg, #d3d5d6, #2a4a68);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.loading {
+  padding: 40px;
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+}
+
+/* Header */
+.container h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+/* Summary Cards */
+.cards {
+    display: flex;
+    margin-bottom: 30px;
+    justify-content: space-between;
+    align-items: center;
+    width:90%;
+}
+
+.card {
+  background: linear-gradient(145deg, #f2f4f5, #f1bed2);
+  padding: 16px;
+  width:20%;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card h4 {
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.card span {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+/* Chart Section */
+.chartBox {
+  margin-bottom: 30px;
+  padding: 20px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #f2f4f5, #f1bed2);
+  width: 90%;
+}
+
+/* Table */
+.tableBox {
+  background: linear-gradient(145deg, #f2f4f5, #f1bed2);
+  padding: 20px;
+  border-radius: 8px;
+  width:90%;
+}
+
+.tableBox table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableBox th,
+.tableBox td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.tableBox th {
+  background-color: #f2f2f2;
+}

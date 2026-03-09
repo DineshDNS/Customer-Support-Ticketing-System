@@ -1,0 +1,76 @@
+.page {
+  position:fixed;
+  left:220px;
+  top:45px;
+  width:calc(100% - 220px);
+  height:calc(100% - 45px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.card {
+  width: 420px;
+  background:linear-gradient(145deg,rgb(247, 203, 210),white);
+  border-radius: 10px;
+  padding: 30px;
+}
+
+.card h2 {
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.field label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.field input,
+.field select,
+.field textarea {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: #3b82f6;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(145deg,rgb(96, 96, 220),rgb(55, 54, 54));
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  background: linear-gradient(145deg,blue,rgb(24, 23, 23));
+}

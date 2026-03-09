@@ -1,0 +1,101 @@
+.tableCard {
+  position:fixed;
+  left:220px;
+  top:45px;
+  width:calc(100% - 220px);
+  height:230px;
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(145deg, #f2f4f5, #d8acbe);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background-color: #f5f7fa;
+}
+
+.table th {
+  text-align: left;
+  padding: 12px;
+  font-size: 13px;
+  color: #555;
+  font-weight: 600;
+}
+
+.table td {
+  padding: 12px;
+  font-size: 14px;
+  color: #333;
+  border-top: 1px solid #eee;
+}
+
+.table tr:hover {
+  background-color: #fafafa;
+}
+
+.empty {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.statusBtn {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background-color: #4f46e5;
+  color: #fff;
+}
+
+.assignBtn {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background-color: #059669;
+  color: #fff;
+}
+
+.statusBtn:hover {
+  background-color: #4338ca;
+}
+
+.assignBtn:hover {
+  background-color: #047857;
+}
+
+.ticketLink {
+  color: #2563eb;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.ticketLink:hover {
+  text-decoration: underline;
+}
+

@@ -1,0 +1,98 @@
+.dashboard {
+  position:fixed;
+  left:220px;
+  top:45px;
+  width:calc(100% - 220px);
+  height:100%;
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(145deg, #d3d5d6, #2a4a68);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* SUMMARY CARDS */
+.cardsGrid {
+ display: flex;
+ flex-direction: row;
+ justify-content: space-around;
+ align-items: center;
+ width:98%;
+ margin:0;
+}
+
+.card {
+  display: flex;
+  gap: 15px;
+  height:75px;
+  width:150px;
+  padding: 20px;
+  border-radius: 14px;
+  color: #faf8f8;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.icon {
+  font-size: 32px;
+}
+
+.total { background: linear-gradient(135deg,#667eea,#764ba2); }
+.open { background: linear-gradient(135deg,#36d1dc,#5b86e5); }
+.progress { background: linear-gradient(135deg,#f7971e,#ffd200); }
+.resolved { background: linear-gradient(135deg,#56ab2f,#a8e063); }
+.high { background: linear-gradient(135deg,#ff416c,#ff4b2b); }
+
+
+/* TABLE */
+.tableCard {
+  margin-top: 25px;
+  background: linear-gradient(145deg, #f2f4f5, #f1bed2);
+  padding: 20px;
+  border-radius: 14px;
+  width:93%;
+  height:50%;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background: #f0f2f7;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #fff;
+}
+
+.high { background: #ff4b2b; }
+.medium { background: #f7971e; }
+.low { background: #2ecc71; }
+
+.open { background: #3498db; }
+.inprogress { background: #f39c12; }
+.resolved { background: #2ecc71; }
+
+.loading {
+  padding: 40px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.error {
+  padding: 40px;
+  text-align: center;
+  color: red;
+  font-weight: 600;
+}

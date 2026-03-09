@@ -1,0 +1,77 @@
+.sidebarCard {
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 10px;
+  width: 220px;
+  height: 100%;
+  background: linear-gradient(145deg, #031627, #40729a);
+  box-sizing: border-box;
+}
+
+/* Top */
+.sidebarTop {
+  border-bottom: 1px solid white;
+}
+
+.sidebarTop h3 {
+  color: white;
+  text-align: center;
+}
+
+/* Middle */
+.sidebarMiddle {
+  border-bottom: 1px solid white;
+  padding: 20px;
+}
+
+.navList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 10px;
+  padding: 20px 5px;
+  width: 100%;
+  color: #c0c3c5;
+  text-decoration: none;
+}
+
+.link:hover {
+  background-color: #2f3e4e;
+  color: #ffffff;
+}
+
+.active {
+  background-color: #34495e;
+  border-left: 4px solid #4fd1c5;
+  color: #ffffff;
+}
+
+/* Bottom */
+.sidebarBottom {
+  margin-top: auto;
+}
+
+.btnCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px;
+  padding: 16px;
+  color: #c8deed;
+}
+
+.logoutBtn {
+  background: #34495e;
+  font-size: 16px;
+  padding: 6px 12px;
+  color: white;
+  border: none;
+  cursor: pointer;
+}

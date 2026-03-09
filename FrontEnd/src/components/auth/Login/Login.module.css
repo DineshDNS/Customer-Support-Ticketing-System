@@ -1,0 +1,186 @@
+.login {
+  box-sizing: border-box;
+  background: #f6f7fb;
+  height: 100vh;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Background circles */
+.login::before {
+  content: "";
+  position: fixed;
+  top: -140px;
+  right: -140px;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #1d5481, #163145);
+}
+
+.login::after {
+  content: "";
+  position: fixed;
+  bottom: -120px;
+  left: -120px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #bed4e7, #dce8f1);
+}
+
+/* Layout */
+.loginPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Card */
+.loginCard {
+  width: 20%;
+  background: linear-gradient(145deg, #315878, #1a415f);
+  border-radius: 10px;
+  text-align: center;
+  padding: 45px;
+  z-index: 10;
+}
+
+.loginCard h2 {
+  color: white;
+  margin-bottom: 0;
+}
+
+.loginCard p {
+  margin: 0;
+  color: #628aad;
+}
+
+/* Inputs */
+.loginInputCard {
+  border-radius: 5px;
+  background-color: #11446e;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.loginInputCard label {
+  display: block;
+  text-align: left;
+  margin: 5px;
+  color: rgb(147, 200, 221);
+}
+
+.loginInputBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #628aad;
+  padding: 5px;
+}
+
+.loginInputBox input {
+  background-color: #11446e;
+  border: none;
+  width: 100%;
+  color: white;
+}
+
+.loginInputBox input:focus {
+  outline: none;
+}
+
+.loginInputBox input::placeholder {
+  color: rgb(211, 207, 207);
+}
+
+/* Options */
+.loginOptions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.loginRemember span {
+  font-size: small;
+  color: rgb(147, 200, 221);
+}
+
+.loginForgot {
+  font-size: small;
+  color: rgb(252, 254, 254);
+  text-decoration: none;
+}
+
+/* Button */
+.loginBtnCard {
+  height: 45px;
+  width: 100%;
+  border-radius: 7px;
+  background-color: #e4e8ec;
+  margin: 20px 0;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+.spanProceed {
+  margin-left: 20px;
+  font-weight: bold;
+}
+
+.spanArrow {
+  font-size: large;
+  font-weight: bold;
+}
+
+/* Footer text */
+.loginText {
+  font-size: small;
+}
+
+.loginText a {
+  color: white;
+  text-decoration: none;
+}
+
+.loginOr {
+  font-size: small;
+  margin-top: 10px;
+}
+
+/* Social Icons */
+.loginSocialIcons {
+  margin: 10px;
+}
+
+.faGoogle {
+  background-color: hwb(0 22% 20%);
+  margin: 5px;
+  border-radius: 50px;
+  color: white;
+  padding: 5px;
+}
+
+.faFacebook {
+  background-color: blue;
+  margin: 5px;
+  border-radius: 50px;
+  color: white;
+  padding: 5px;
+}
+
+.faTwitter {
+  background-color: hsl(208, 75%, 72%);
+  margin: 5px;
+  padding: 5px;
+  border-radius: 50px;
+  color: white;
+}
+
+
