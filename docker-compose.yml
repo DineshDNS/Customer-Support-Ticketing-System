@@ -1,9 +1,6 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:15
-    container_name: postgres_db
     environment:
       POSTGRES_DB: ticketing_db
       POSTGRES_USER: postgres
@@ -11,11 +8,10 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data   
+      - postgres_data:/var/lib/postgresql/data
 
   backend:
     build: ./backend
-    container_name: django_backend
     command: sh -c "python wait_for_db.py && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/app
@@ -26,11 +22,10 @@ services:
 
   frontend:
     build: ./frontend
-    container_name: react_frontend
     ports:
       - "3000:3000"
     depends_on:
       - backend
 
 volumes:
-  postgres_data:   
+  postgres_data:
