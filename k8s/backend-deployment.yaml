@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: csts-backend
+          imagePullPolicy: Never
+
+          command: ["sh", "-c"]
+          args:
+           - python manage.py runserver 0.0.0.0:8000
+
+          env:
+            - name: DB_HOST
+              value: postgres
+            - name: DB_NAME
+              value: ticketing_db
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              value: "667254"
+            - name: DB_PORT
+              value: "5432"
+
+          ports:
+            - containerPort: 8000
