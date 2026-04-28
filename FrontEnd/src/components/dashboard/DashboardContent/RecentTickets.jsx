@@ -22,14 +22,20 @@ function RecentTickets({ tickets = [] }) {
               <tr key={i}>
                 <td>{t.ticket_code}</td>
                 <td>{t.title}</td>
+
                 <td>
                   <span className={`${styles.badge} ${styles[t.priority]}`}>
                     {t.priority}
                   </span>
                 </td>
+
                 <td>
-                  <span className={`${styles.badge} ${styles[t.status]}`}>
-                    {t.status}
+                  <span
+                    className={`${styles.badge} ${
+                      styles[t.status.replace("_", "")]
+                    }`}
+                  >
+                    {t.status.replace("_", " ")}
                   </span>
                 </td>
               </tr>

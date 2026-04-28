@@ -83,6 +83,7 @@ th {
 .open { background: #3498db; }
 .inprogress { background: #f39c12; }
 .resolved { background: #2ecc71; }
+.closed { background: #95a5a6; }
 
 .loading {
   padding: 40px;

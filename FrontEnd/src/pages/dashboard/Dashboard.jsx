@@ -5,7 +5,7 @@ import Topbar from "../../components/dashboard/Topbar/Topbar";
 function Dashboard() {
    return(
       <div className="mainBackground">
-       < Sidebar/>
+       <Sidebar/>
        <Topbar/>
        <DashboardContent/>
       </div>
