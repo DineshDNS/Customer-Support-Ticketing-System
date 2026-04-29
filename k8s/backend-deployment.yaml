@@ -2,16 +2,44 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
+
 spec:
   replicas: 1
+
   selector:
     matchLabels:
       app: backend
+
   template:
     metadata:
       labels:
         app: backend
+
     spec:
+      restartPolicy: Always   # ✅ ADD HERE
+
+      # ✅ INIT CONTAINER (RUNS FIRST)
+      initContainers:
+        - name: migrate
+          image: dinesh3715/csts-backend:1
+
+          command: ["sh", "-c"]
+          args:
+            - python wait_for_db.py && python manage.py migrate --noinput
+
+          env:
+            - name: DB_HOST
+              value: postgres
+            - name: DB_NAME
+              value: ticketing_db
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              value: "667254"
+            - name: DB_PORT
+              value: "5432"
+
+      # ✅ MAIN CONTAINER
       containers:
         - name: backend
           image: dinesh3715/csts-backend:1
@@ -19,7 +47,7 @@ spec:
 
           command: ["sh", "-c"]
           args:
-            - python wait_for_db.py && python manage.py migrate && python manage.py runserver 0.0.0.0:8000
+            - python manage.py runserver 0.0.0.0:8000
 
           env:
             - name: DB_HOST
