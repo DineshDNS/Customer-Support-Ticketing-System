@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-change-this-in-production"
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["*"]
 
 
 # --------------------------------------------------
@@ -111,7 +111,7 @@ DATABASES = {
         "NAME": os.getenv("DB_NAME", "ticketing_db"),
         "USER": os.getenv("DB_USER", "postgres"),
         "PASSWORD": os.getenv("DB_PASSWORD", "667254"),
-        "HOST": os.getenv("DB_HOST", "db"), 
+        "HOST": os.getenv("DB_HOST", "postgres"),
         "PORT": os.getenv("DB_PORT", "5432"),
     }
 }

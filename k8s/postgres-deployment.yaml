@@ -15,6 +15,7 @@ spec:
       containers:
       - name: postgres
         image: postgres:15
+
         env:
         - name: POSTGRES_DB
           value: ticketing_db
@@ -22,5 +23,13 @@ spec:
           value: postgres
         - name: POSTGRES_PASSWORD
           value: "667254"
+
         ports:
         - containerPort: 5432
+
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgres-storage
+      volumes:
+      - name: postgres-storage
+        emptyDir: {}

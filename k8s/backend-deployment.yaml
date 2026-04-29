@@ -14,12 +14,12 @@ spec:
     spec:
       containers:
         - name: backend
-          image: csts-backend
-          imagePullPolicy: Never
+          image: dinesh3715/csts-backend:1
+          imagePullPolicy: Always
 
           command: ["sh", "-c"]
           args:
-           - python manage.py runserver 0.0.0.0:8000
+            - python wait_for_db.py && python manage.py migrate && python manage.py runserver 0.0.0.0:8000
 
           env:
             - name: DB_HOST

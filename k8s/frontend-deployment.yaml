@@ -13,7 +13,9 @@ spec:
         app: frontend
     spec:
       containers:
-      - name: frontend
-        image: csts-frontend
-        ports:
-        - containerPort: 3000
+        - name: frontend
+          image: dinesh3715/csts-frontend:1
+          imagePullPolicy: Always               
+
+          ports:
+            - containerPort: 3000
