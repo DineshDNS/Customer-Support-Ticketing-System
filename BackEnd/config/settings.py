@@ -169,3 +169,5 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.AllowAny",
     ),
 }
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
