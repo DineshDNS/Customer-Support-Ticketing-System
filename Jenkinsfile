@@ -1,0 +1,109 @@
+pipeline {
+    agent any
+    
+    environment {
+        PROJECT_NAME   = 'csts'
+        DOCKERHUB_USER = 'dinesh3715'
+        KUBECONFIG     = 'C:\\Users\\user\\.kube\\config'
+    }
+
+    stages {
+
+        stage('Clean Workspace') {
+            steps { deleteDir() }
+        }
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/DineshDNS/Customer-Support-Ticketing-System.git'
+            }
+        }
+
+        stage('Check Tools') {
+            steps {
+                bat 'docker --version'
+                bat 'kubectl version --client'
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                bat """
+                docker build -t %DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER% ./BackEnd
+                docker build -t %DOCKERHUB_USER%/csts-backend:latest ./BackEnd
+
+                docker build -t %DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER% ./FrontEnd
+                docker build -t %DOCKERHUB_USER%/csts-frontend:latest ./FrontEnd
+                """
+            }
+        }
+
+        stage('Docker Login & Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    bat '''
+                    @echo off
+                    echo %DOCKER_PASS%> docker_pass.txt
+                    docker login -u %DOCKER_USER% --password-stdin < docker_pass.txt
+                    del docker_pass.txt
+
+                    docker push %DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER%
+                    docker push %DOCKERHUB_USER%/csts-backend:latest
+
+                    docker push %DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER%
+                    docker push %DOCKERHUB_USER%/csts-frontend:latest
+                    '''
+                }
+            }
+        }
+
+        stage('Set Kubernetes Context') {
+            steps {
+                bat 'kubectl config use-context docker-desktop'
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                bat """
+                kubectl set image deployment/backend backend=%DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER%
+                kubectl set image deployment/frontend frontend=%DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER%
+                """
+            }
+        }
+
+        stage('Wait for Rollout') {
+            steps {
+                bat 'kubectl rollout status deployment/backend'
+                bat 'kubectl rollout status deployment/frontend'
+            }
+        }
+
+        stage('Run Migrations') {
+            steps {
+                bat 'kubectl exec deployment/backend -- python manage.py migrate --noinput'
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                bat 'kubectl get pods'
+                bat 'kubectl get services'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'CI/CD + Kubernetes Deployment Successful!'
+        }
+        failure {
+            echo 'Pipeline Failed! Check logs.'
+        }
+    }
+}
