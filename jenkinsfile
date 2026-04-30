@@ -1,6 +1,7 @@
 pipeline {
     agent any
 
+
     environment {
         PROJECT_NAME   = 'csts'
         DOCKERHUB_USER = 'dinesh3715'
