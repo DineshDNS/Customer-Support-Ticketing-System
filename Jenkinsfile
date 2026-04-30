@@ -69,31 +69,7 @@ pipeline {
             steps {
                 sshagent(['ec2-ssh-key']) {
                     bat '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% ^
-                    "echo Deploying... && ^
-                    
-                    docker stop backend || true && docker rm backend || true && ^
-                    docker stop frontend || true && docker rm frontend || true && ^
-                    docker stop postgres || true && docker rm postgres || true && ^
-                    
-                    docker network create app-network || true && ^
-                    
-                    docker run -d --name postgres --network app-network ^
-                    -e POSTGRES_DB=ticketing_db ^
-                    -e POSTGRES_USER=postgres ^
-                    -e POSTGRES_PASSWORD=667254 ^
-                    -p 5432:5432 postgres && ^
-                    
-                    docker pull %DOCKERHUB_USER%/csts-backend:latest && ^
-                    docker pull %DOCKERHUB_USER%/csts-frontend:latest && ^
-                    
-                    docker run -d --name backend --network app-network ^
-                    -p 8000:8000 %DOCKERHUB_USER%/csts-backend:latest && ^
-                    
-                    docker run -d --name frontend ^
-                    -p 3000:3000 %DOCKERHUB_USER%/csts-frontend:latest && ^
-                    
-                    echo Deployment Complete"
+                    ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "docker stop backend frontend postgres || true && docker rm backend frontend postgres || true && docker network create app-network || true && docker run -d --name postgres --network app-network -e POSTGRES_DB=ticketing_db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=667254 -p 5432:5432 postgres && docker pull %DOCKERHUB_USER%/csts-backend:latest && docker pull %DOCKERHUB_USER%/csts-frontend:latest && docker run -d --name backend --network app-network -p 8000:8000 %DOCKERHUB_USER%/csts-backend:latest && docker run -d --name frontend -p 3000:3000 %DOCKERHUB_USER%/csts-frontend:latest"
                     '''
                 }
             }
