@@ -1,0 +1,42 @@
+- name: Setup DevOps Environment
+  hosts: aws
+  become: yes
+
+  tasks:
+
+    - name: Update package manager
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Start Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Download kubectl
+      get_url:
+        url: https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl
+        dest: /usr/local/bin/kubectl
+        mode: '0755'
+
+    - name: Verify kubectl
+      command: kubectl version --client
+      register: kubectl_output
+
+    - debug:
+        var: kubectl_output.stdout
+
+    - name: Verify Docker
+      command: docker --version
+      register: docker_output
+
+    - debug:
+        var: docker_output.stdout
