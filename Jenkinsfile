@@ -1,19 +1,21 @@
 pipeline {
     agent any
-    
+
     environment {
-        PROJECT_NAME   = 'csts'
+        PROJECT_NAME = 'csts'
         DOCKERHUB_USER = 'dinesh3715'
-        KUBECONFIG     = 'C:\\Users\\user\\.kube\\config'
+        EC2_IP = '13.203.193.23'
     }
 
     stages {
 
         stage('Clean Workspace') {
-            steps { deleteDir() }
+            steps {
+                deleteDir()
+            }
         }
 
-        stage('Checkout') {
+        stage('Clone Code') {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/DineshDNS/Customer-Support-Ticketing-System.git'
@@ -46,6 +48,7 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
+
                     bat '''
                     @echo off
                     echo %DOCKER_PASS%> docker_pass.txt
@@ -62,45 +65,69 @@ pipeline {
             }
         }
 
-        stage('Set Kubernetes Context') {
+        stage('Deploy to EC2') {
             steps {
-                bat 'kubectl config use-context docker-desktop'
-            }
-        }
+                sshagent(['ec2-ssh-key']) {
+                    bat """
+                    ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "
+                    
+                    echo ' Deploying latest version...'
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                bat """
-                kubectl set image deployment/backend backend=%DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER%
-                kubectl set image deployment/frontend frontend=%DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER%
-                """
-            }
-        }
+                    docker stop backend || true
+                    docker rm backend || true
+                    docker stop frontend || true
+                    docker rm frontend || true
+                    docker stop postgres || true
+                    docker rm postgres || true
 
-        stage('Wait for Rollout') {
-            steps {
-                bat 'kubectl rollout status deployment/backend'
-                bat 'kubectl rollout status deployment/frontend'
-            }
-        }
+                    docker network create app-network || true
 
-        stage('Run Migrations') {
-            steps {
-                bat 'kubectl exec deployment/backend -- python manage.py migrate --noinput'
+                    docker run -d \
+                      --name postgres \
+                      --network app-network \
+                      -e POSTGRES_DB=ticketing_db \
+                      -e POSTGRES_USER=postgres \
+                      -e POSTGRES_PASSWORD=667254 \
+                      -p 5432:5432 \
+                      postgres
+
+                    docker pull %DOCKERHUB_USER%/csts-backend:latest
+                    docker pull %DOCKERHUB_USER%/csts-frontend:latest
+
+                    docker run -d \
+                      --name backend \
+                      --network app-network \
+                      -p 8000:8000 \
+                      %DOCKERHUB_USER%/csts-backend:latest
+
+                    docker run -d \
+                      --name frontend \
+                      -p 3000:3000 \
+                      %DOCKERHUB_USER%/csts-frontend:latest
+
+                    echo 'Deployment Complete!'
+                    "
+                    """
+                }
             }
         }
 
         stage('Verify Deployment') {
             steps {
-                bat 'kubectl get pods'
-                bat 'kubectl get services'
+                sshagent(['ec2-ssh-key']) {
+                    bat """
+                    ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "
+                    docker ps
+                    "
+                    """
+                }
             }
         }
     }
 
     post {
         success {
-            echo 'CI/CD + Kubernetes Deployment Successful!'
+            echo 'CI/CD + Auto Deployment Successful!'
         }
         failure {
             echo 'Pipeline Failed! Check logs.'
