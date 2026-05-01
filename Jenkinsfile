@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        PROJECT_NAME = 'csts'
         DOCKERHUB_USER = 'dinesh3715'
         EC2_IP = '13.203.193.23'
     }
@@ -9,7 +10,9 @@ pipeline {
     stages {
 
         stage('Clean Workspace') {
-            steps { deleteDir() }
+            steps {
+                deleteDir()
+            }
         }
 
         stage('Clone Code') {
@@ -19,37 +22,10 @@ pipeline {
             }
         }
 
-        // 🔍 DEBUG + LOGIN
-        stage('Docker Login (Debug)') {
+        stage('Check Tools') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    bat '''
-                    echo ===============================
-                    echo DEBUG: Checking credentials
-                    echo USERNAME = %DOCKER_USER%
-                    echo ===============================
-
-                    docker logout
-
-                    echo Creating password file...
-                    echo %DOCKER_PASS% > pass.txt
-
-                    echo Attempting Docker login...
-                    type pass.txt | docker login --username %DOCKER_USER% --password-stdin
-
-                    echo Cleaning up...
-                    del pass.txt
-
-                    echo ===============================
-                    echo Docker Info:
-                    docker info
-                    echo ===============================
-                    '''
-                }
+                bat 'docker --version'
+                bat 'kubectl version --client'
             }
         }
 
@@ -65,15 +41,27 @@ pipeline {
             }
         }
 
-        stage('Push Docker Images') {
+        stage('Docker Login & Push') {
             steps {
-                bat """
-                docker push %DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER%
-                docker push %DOCKERHUB_USER%/csts-backend:latest
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
 
-                docker push %DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER%
-                docker push %DOCKERHUB_USER%/csts-frontend:latest
-                """
+                    bat '''
+                    @echo off
+                    echo %DOCKER_PASS%> docker_pass.txt
+                    docker login -u %DOCKER_USER% --password-stdin < docker_pass.txt
+                    del docker_pass.txt
+
+                    docker push %DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER%
+                    docker push %DOCKERHUB_USER%/csts-backend:latest
+
+                    docker push %DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER%
+                    docker push %DOCKERHUB_USER%/csts-frontend:latest
+                    '''
+                }
             }
         }
 
@@ -81,19 +69,44 @@ pipeline {
             steps {
                 sshagent(['ec2-ssh-key']) {
                     bat """
-                    ssh -tt -o StrictHostKeyChecking=no ubuntu@%EC2_IP% ^
-                    "docker stop backend frontend postgres || true && ^
-                     docker rm backend frontend postgres || true && ^
-                     docker network create app-network || true && ^
-                     docker run -d --name postgres --network app-network ^
-                        -e POSTGRES_DB=ticketing_db ^
-                        -e POSTGRES_USER=postgres ^
-                        -e POSTGRES_PASSWORD=667254 ^
-                        -p 5432:5432 postgres && ^
-                     docker pull %DOCKERHUB_USER%/csts-backend:latest && ^
-                     docker pull %DOCKERHUB_USER%/csts-frontend:latest && ^
-                     docker run -d --name backend --network app-network -p 8000:8000 %DOCKERHUB_USER%/csts-backend:latest && ^
-                     docker run -d --name frontend --network app-network -p 3000:3000 %DOCKERHUB_USER%/csts-frontend:latest"
+                    ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "
+                    
+                    echo ' Deploying latest version...'
+
+                    docker stop backend || true
+                    docker rm backend || true
+                    docker stop frontend || true
+                    docker rm frontend || true
+                    docker stop postgres || true
+                    docker rm postgres || true
+
+                    docker network create app-network || true
+
+                    docker run -d \
+                      --name postgres \
+                      --network app-network \
+                      -e POSTGRES_DB=ticketing_db \
+                      -e POSTGRES_USER=postgres \
+                      -e POSTGRES_PASSWORD=667254 \
+                      -p 5432:5432 \
+                      postgres
+
+                    docker pull %DOCKERHUB_USER%/csts-backend:latest
+                    docker pull %DOCKERHUB_USER%/csts-frontend:latest
+
+                    docker run -d \
+                      --name backend \
+                      --network app-network \
+                      -p 8000:8000 \
+                      %DOCKERHUB_USER%/csts-backend:latest
+
+                    docker run -d \
+                      --name frontend \
+                      -p 3000:3000 \
+                      %DOCKERHUB_USER%/csts-frontend:latest
+
+                    echo 'Deployment Complete!'
+                    "
                     """
                 }
             }
@@ -103,7 +116,9 @@ pipeline {
             steps {
                 sshagent(['ec2-ssh-key']) {
                     bat """
-                    ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% docker ps
+                    ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "
+                    docker ps
+                    "
                     """
                 }
             }
@@ -112,10 +127,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ CI/CD + Auto Deployment Successful!'
+            echo 'CI/CD + Auto Deployment Successful!'
         }
         failure {
-            echo '❌ Pipeline Failed! Check logs.'
+            echo 'Pipeline Failed! Check logs.'
         }
     }
 }
