@@ -2,17 +2,14 @@ pipeline {
     agent any
 
     environment {
-        PROJECT_NAME   = 'csts'
         DOCKERHUB_USER = 'dinesh3715'
-        EC2_IP         = '13.203.193.23'
+        EC2_IP = '13.203.193.23'
     }
 
     stages {
 
         stage('Clean Workspace') {
-            steps {
-                deleteDir()
-            }
+            steps { deleteDir() }
         }
 
         stage('Clone Code') {
@@ -22,21 +19,14 @@ pipeline {
             }
         }
 
-        stage('Check Tools') {
-            steps {
-                bat 'docker --version'
-                bat 'kubectl version --client'
-            }
-        }
-
         stage('Build Docker Images') {
             steps {
                 bat """
-                docker build -t %DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER% ./BackEnd
-                docker build -t %DOCKERHUB_USER%/csts-backend:latest ./BackEnd
+                docker build -t dinesh3715/csts-backend:%BUILD_NUMBER% ./BackEnd
+                docker build -t dinesh3715/csts-backend:latest ./BackEnd
 
-                docker build -t %DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER% ./FrontEnd
-                docker build -t %DOCKERHUB_USER%/csts-frontend:latest ./FrontEnd
+                docker build -t dinesh3715/csts-frontend:%BUILD_NUMBER% ./FrontEnd
+                docker build -t dinesh3715/csts-frontend:latest ./FrontEnd
                 """
             }
         }
@@ -48,18 +38,14 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-
                     bat '''
-                    @echo off
-                    echo %DOCKER_PASS%> docker_pass.txt
-                    docker login -u %DOCKER_USER% --password-stdin < docker_pass.txt
-                    del docker_pass.txt
+                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
 
-                    docker push %DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER%
-                    docker push %DOCKERHUB_USER%/csts-backend:latest
+                    docker push dinesh3715/csts-backend:%BUILD_NUMBER%
+                    docker push dinesh3715/csts-backend:latest
 
-                    docker push %DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER%
-                    docker push %DOCKERHUB_USER%/csts-frontend:latest
+                    docker push dinesh3715/csts-frontend:%BUILD_NUMBER%
+                    docker push dinesh3715/csts-frontend:latest
                     '''
                 }
             }
@@ -69,7 +55,7 @@ pipeline {
             steps {
                 sshagent(['ec2-ssh-key']) {
                     bat '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "docker stop backend frontend postgres || true && docker rm backend frontend postgres || true && docker network create app-network || true && docker run -d --name postgres --network app-network -e POSTGRES_DB=ticketing_db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=667254 -p 5432:5432 postgres && docker pull %DOCKERHUB_USER%/csts-backend:latest && docker pull %DOCKERHUB_USER%/csts-frontend:latest && docker run -d --name backend --network app-network -p 8000:8000 %DOCKERHUB_USER%/csts-backend:latest && docker run -d --name frontend -p 3000:3000 %DOCKERHUB_USER%/csts-frontend:latest"
+                    ssh -tt -o StrictHostKeyChecking=no ubuntu@13.203.193.23 "docker stop backend frontend postgres || true && docker rm backend frontend postgres || true && docker network create app-network || true && docker run -d --name postgres --network app-network -e POSTGRES_DB=ticketing_db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=667254 -p 5432:5432 postgres && docker pull dinesh3715/csts-backend:latest && docker pull dinesh3715/csts-frontend:latest && docker run -d --name backend --network app-network -p 8000:8000 dinesh3715/csts-backend:latest && docker run -d --name frontend --network app-network -p 3000:3000 dinesh3715/csts-frontend:latest"
                     '''
                 }
             }
@@ -79,7 +65,7 @@ pipeline {
             steps {
                 sshagent(['ec2-ssh-key']) {
                     bat '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% docker ps
+                    ssh -o StrictHostKeyChecking=no ubuntu@13.203.193.23 docker ps
                     '''
                 }
             }
