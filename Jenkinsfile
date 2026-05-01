@@ -22,16 +22,16 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 bat """
-                docker build -t dinesh3715/csts-backend:%BUILD_NUMBER% ./BackEnd
-                docker build -t dinesh3715/csts-backend:latest ./BackEnd
+                docker build -t %DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER% ./BackEnd
+                docker build -t %DOCKERHUB_USER%/csts-backend:latest ./BackEnd
 
-                docker build -t dinesh3715/csts-frontend:%BUILD_NUMBER% ./FrontEnd
-                docker build -t dinesh3715/csts-frontend:latest ./FrontEnd
+                docker build -t %DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER% ./FrontEnd
+                docker build -t %DOCKERHUB_USER%/csts-frontend:latest ./FrontEnd
                 """
             }
         }
 
-        stage('Docker Login & Push') {
+        stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-creds',
@@ -39,24 +39,48 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     bat '''
-                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    docker logout
 
-                    docker push dinesh3715/csts-backend:%BUILD_NUMBER%
-                    docker push dinesh3715/csts-backend:latest
+                    echo %DOCKER_PASS% > pass.txt
+                    type pass.txt | docker login --username %DOCKER_USER% --password-stdin
+                    del pass.txt
 
-                    docker push dinesh3715/csts-frontend:%BUILD_NUMBER%
-                    docker push dinesh3715/csts-frontend:latest
+                    docker info
                     '''
                 }
+            }
+        }
+
+        stage('Push Docker Images') {
+            steps {
+                bat """
+                docker push %DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER%
+                docker push %DOCKERHUB_USER%/csts-backend:latest
+
+                docker push %DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER%
+                docker push %DOCKERHUB_USER%/csts-frontend:latest
+                """
             }
         }
 
         stage('Deploy to EC2') {
             steps {
                 sshagent(['ec2-ssh-key']) {
-                    bat '''
-                    ssh -tt -o StrictHostKeyChecking=no ubuntu@13.203.193.23 "docker stop backend frontend postgres || true && docker rm backend frontend postgres || true && docker network create app-network || true && docker run -d --name postgres --network app-network -e POSTGRES_DB=ticketing_db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=667254 -p 5432:5432 postgres && docker pull dinesh3715/csts-backend:latest && docker pull dinesh3715/csts-frontend:latest && docker run -d --name backend --network app-network -p 8000:8000 dinesh3715/csts-backend:latest && docker run -d --name frontend --network app-network -p 3000:3000 dinesh3715/csts-frontend:latest"
-                    '''
+                    bat """
+                    ssh -tt -o StrictHostKeyChecking=no ubuntu@%EC2_IP% ^
+                    "docker stop backend frontend postgres || true && ^
+                     docker rm backend frontend postgres || true && ^
+                     docker network create app-network || true && ^
+                     docker run -d --name postgres --network app-network ^
+                        -e POSTGRES_DB=ticketing_db ^
+                        -e POSTGRES_USER=postgres ^
+                        -e POSTGRES_PASSWORD=667254 ^
+                        -p 5432:5432 postgres && ^
+                     docker pull %DOCKERHUB_USER%/csts-backend:latest && ^
+                     docker pull %DOCKERHUB_USER%/csts-frontend:latest && ^
+                     docker run -d --name backend --network app-network -p 8000:8000 %DOCKERHUB_USER%/csts-backend:latest && ^
+                     docker run -d --name frontend --network app-network -p 3000:3000 %DOCKERHUB_USER%/csts-frontend:latest"
+                    """
                 }
             }
         }
@@ -64,9 +88,9 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sshagent(['ec2-ssh-key']) {
-                    bat '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@13.203.193.23 docker ps
-                    '''
+                    bat """
+                    ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% docker ps
+                    """
                 }
             }
         }
