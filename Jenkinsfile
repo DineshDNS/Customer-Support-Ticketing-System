@@ -19,18 +19,7 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
-            steps {
-                bat """
-                docker build -t %DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER% ./BackEnd
-                docker build -t %DOCKERHUB_USER%/csts-backend:latest ./BackEnd
-
-                docker build -t %DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER% ./FrontEnd
-                docker build -t %DOCKERHUB_USER%/csts-frontend:latest ./FrontEnd
-                """
-            }
-        }
-
+        // ✅ FIX 1: LOGIN BEFORE BUILD
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
@@ -48,6 +37,18 @@ pipeline {
                     docker info
                     '''
                 }
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                bat """
+                docker build -t %DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER% ./BackEnd
+                docker build -t %DOCKERHUB_USER%/csts-backend:latest ./BackEnd
+
+                docker build -t %DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER% ./FrontEnd
+                docker build -t %DOCKERHUB_USER%/csts-frontend:latest ./FrontEnd
+                """
             }
         }
 
