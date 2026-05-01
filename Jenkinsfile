@@ -19,8 +19,8 @@ pipeline {
             }
         }
 
-        // ✅ FIX 1: LOGIN BEFORE BUILD
-        stage('Docker Login') {
+        // 🔍 DEBUG + LOGIN
+        stage('Docker Login (Debug)') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-creds',
@@ -28,13 +28,26 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     bat '''
+                    echo ===============================
+                    echo DEBUG: Checking credentials
+                    echo USERNAME = %DOCKER_USER%
+                    echo ===============================
+
                     docker logout
 
+                    echo Creating password file...
                     echo %DOCKER_PASS% > pass.txt
+
+                    echo Attempting Docker login...
                     type pass.txt | docker login --username %DOCKER_USER% --password-stdin
+
+                    echo Cleaning up...
                     del pass.txt
 
+                    echo ===============================
+                    echo Docker Info:
                     docker info
+                    echo ===============================
                     '''
                 }
             }
