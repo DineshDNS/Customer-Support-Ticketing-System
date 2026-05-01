@@ -29,6 +29,22 @@ pipeline {
             }
         }
 
+        // ✅ FIX 1: LOGIN BEFORE BUILD
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    bat """
+                    docker logout
+                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    """
+                }
+            }
+        }
+
         stage('Build Docker Images') {
             steps {
                 bat """
@@ -41,72 +57,38 @@ pipeline {
             }
         }
 
-        stage('Docker Login & Push') {
+        stage('Push Docker Images') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
+                bat """
+                docker push %DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER%
+                docker push %DOCKERHUB_USER%/csts-backend:latest
 
-                    bat '''
-                    @echo off
-                    echo %DOCKER_PASS%> docker_pass.txt
-                    docker login -u %DOCKER_USER% --password-stdin < docker_pass.txt
-                    del docker_pass.txt
-
-                    docker push %DOCKERHUB_USER%/csts-backend:%BUILD_NUMBER%
-                    docker push %DOCKERHUB_USER%/csts-backend:latest
-
-                    docker push %DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER%
-                    docker push %DOCKERHUB_USER%/csts-frontend:latest
-                    '''
-                }
+                docker push %DOCKERHUB_USER%/csts-frontend:%BUILD_NUMBER%
+                docker push %DOCKERHUB_USER%/csts-frontend:latest
+                """
             }
         }
 
+        // ✅ FIX 2: WINDOWS-COMPATIBLE DEPLOYMENT
         stage('Deploy to EC2') {
             steps {
                 sshagent(['ec2-ssh-key']) {
                     bat """
-                    ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "
-                    
-                    echo ' Deploying latest version...'
-
-                    docker stop backend || true
-                    docker rm backend || true
-                    docker stop frontend || true
-                    docker rm frontend || true
-                    docker stop postgres || true
-                    docker rm postgres || true
-
-                    docker network create app-network || true
-
-                    docker run -d \
-                      --name postgres \
-                      --network app-network \
-                      -e POSTGRES_DB=ticketing_db \
-                      -e POSTGRES_USER=postgres \
-                      -e POSTGRES_PASSWORD=667254 \
-                      -p 5432:5432 \
-                      postgres
-
-                    docker pull %DOCKERHUB_USER%/csts-backend:latest
-                    docker pull %DOCKERHUB_USER%/csts-frontend:latest
-
-                    docker run -d \
-                      --name backend \
-                      --network app-network \
-                      -p 8000:8000 \
-                      %DOCKERHUB_USER%/csts-backend:latest
-
-                    docker run -d \
-                      --name frontend \
-                      -p 3000:3000 \
-                      %DOCKERHUB_USER%/csts-frontend:latest
-
-                    echo 'Deployment Complete!'
-                    "
+                    ssh -tt -o StrictHostKeyChecking=no ubuntu@%EC2_IP% ^
+                    "echo 'Deploying latest version...' && ^
+                     docker stop backend frontend postgres || true && ^
+                     docker rm backend frontend postgres || true && ^
+                     docker network create app-network || true && ^
+                     docker run -d --name postgres --network app-network ^
+                        -e POSTGRES_DB=ticketing_db ^
+                        -e POSTGRES_USER=postgres ^
+                        -e POSTGRES_PASSWORD=667254 ^
+                        -p 5432:5432 postgres && ^
+                     docker pull %DOCKERHUB_USER%/csts-backend:latest && ^
+                     docker pull %DOCKERHUB_USER%/csts-frontend:latest && ^
+                     docker run -d --name backend --network app-network -p 8000:8000 %DOCKERHUB_USER%/csts-backend:latest && ^
+                     docker run -d --name frontend --network app-network -p 3000:3000 %DOCKERHUB_USER%/csts-frontend:latest && ^
+                     echo 'Deployment Complete!'"
                     """
                 }
             }
@@ -116,9 +98,7 @@ pipeline {
             steps {
                 sshagent(['ec2-ssh-key']) {
                     bat """
-                    ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% "
-                    docker ps
-                    "
+                    ssh -o StrictHostKeyChecking=no ubuntu@%EC2_IP% docker ps
                     """
                 }
             }
@@ -127,10 +107,10 @@ pipeline {
 
     post {
         success {
-            echo 'CI/CD + Auto Deployment Successful!'
+            echo '✅ CI/CD + Auto Deployment Successful!'
         }
         failure {
-            echo 'Pipeline Failed! Check logs.'
+            echo '❌ Pipeline Failed! Check logs.'
         }
     }
 }
