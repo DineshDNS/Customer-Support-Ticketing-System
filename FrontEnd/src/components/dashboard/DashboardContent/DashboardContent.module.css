@@ -80,9 +80,22 @@ th {
 .medium { background: #f7971e; }
 .low { background: #2ecc71; }
 
-.open { background: #3498db; }
-.inprogress { background: #f39c12; }
-.resolved { background: #2ecc71; }
+/* STATUS COLORS */
+.open {
+  background: #3498db;
+}
+
+.in_progress {
+  background: #f39c12;
+}
+
+.resolved {
+  background: #2ecc71;
+}
+
+.closed {
+  background: #7f8c8d;
+}
 
 .loading {
   padding: 40px;

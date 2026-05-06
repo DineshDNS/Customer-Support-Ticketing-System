@@ -28,7 +28,7 @@ function RecentTickets({ tickets = [] }) {
                   </span>
                 </td>
                 <td>
-                  <span className={`${styles.badge} ${styles[t.status]}`}>
+                  <span className={`${styles.badge} ${styles[t.status?.toLowerCase()]}`}>
                     {t.status}
                   </span>
                 </td>
