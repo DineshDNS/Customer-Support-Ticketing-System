@@ -1,0 +1,63 @@
+
+
+services:
+
+  db:
+    image: postgres:15
+    container_name: csts_db
+
+    environment:
+      POSTGRES_DB: ticketing_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 667254
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+  backend:
+    build:
+      context: ./BackEnd
+
+    container_name: csts_backend
+
+    command: python manage.py runserver 0.0.0.0:8000
+
+    volumes:
+      - ./BackEnd:/app
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      - db
+
+    env_file:
+      - ./BackEnd/.env
+
+
+  frontend:
+    build:
+      context: ./FrontEnd
+
+    container_name: csts_frontend
+
+    volumes:
+      - ./FrontEnd:/app
+      - /app/node_modules
+
+    ports:
+      - "5173:5173"
+
+    depends_on:
+      - backend
+
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
+
+volumes:
+  postgres_data:
