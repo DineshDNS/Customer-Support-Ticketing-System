@@ -2,50 +2,55 @@ apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: backend
+name: backend
+
+labels:
+app: backend
 
 spec:
-  replicas: 1
+replicas: 1
 
-  selector:
-    matchLabels:
-      app: backend
+selector:
+matchLabels:
+app: backend
 
-  template:
-    metadata:
-      labels:
-        app: backend
+template:
+metadata:
+labels:
+app: backend
 
-    spec:
-      containers:
-        - name: backend
+```
+spec:
+  containers:
+    - name: backend
 
-          image: dinesh3715/csts-backend:latest
+      image: dinesh3715/csts-backend:latest
 
-          ports:
-            - containerPort: 8000
+      ports:
+        - containerPort: 8000
 
-          env:
-            - name: DEBUG
-              value: "False"
+      env:
+        - name: DEBUG
+          value: "False"
 
-            - name: SECRET_KEY
-              value: "django-insecure-csts-project-secret-key"
+        - name: SECRET_KEY
+          value: "django-insecure-csts-project-secret-key"
 
-            - name: ALLOWED_HOSTS
-              value: "localhost,127.0.0.1,*"
+        - name: ALLOWED_HOSTS
+          value: "localhost,127.0.0.1,*"
 
-            - name: DB_NAME
-              value: "csts_db"
+        - name: DB_NAME
+          value: "csts_db"
 
-            - name: DB_USER
-              value: "postgres"
+        - name: DB_USER
+          value: "postgres"
 
-            - name: DB_PASSWORD
-              value: "postgres"
+        - name: DB_PASSWORD
+          value: "postgres"
 
-            - name: DB_HOST
-              value: "postgres"
+        - name: DB_HOST
+          value: "postgres"
 
-            - name: DB_PORT
-              value: "5432"
+        - name: DB_PORT
+          value: "5432"
+
