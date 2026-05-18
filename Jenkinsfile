@@ -55,15 +55,33 @@ pipeline {
                 bat 'docker push %FRONTEND_IMAGE%'
             }
         }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+
+                bat 'kubectl apply -f k8s/'
+
+                bat 'kubectl rollout restart deployment backend'
+
+                bat 'kubectl rollout restart deployment frontend'
+            }
+        }
+
+        stage('Verify Kubernetes Pods') {
+            steps {
+                bat 'kubectl get pods'
+            }
+        }
     }
 
     post {
+
         success {
-            echo 'CI/CD Pipeline completed successfully!'
+            echo 'Full CI/CD Kubernetes Deployment Completed Successfully!'
         }
 
         failure {
-            echo 'Pipeline failed!'
+            echo 'Pipeline Failed!'
         }
     }
 }
