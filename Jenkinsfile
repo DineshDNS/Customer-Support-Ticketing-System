@@ -82,7 +82,7 @@ pipeline {
                 bat '''
                 kubectl get pods -l app=backend
 
-                for /f %%i in ('kubectl get pods -l "app=backend" -o jsonpath="{.items[0].metadata.name}"') do (
+                for /f %%i in ('kubectl get pods -l "app=backend" -o jsonpath^="{.items[0].metadata.name}"') do (
                     kubectl exec %%i -- python manage.py migrate
                 )
                 '''
