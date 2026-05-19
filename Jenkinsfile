@@ -79,12 +79,12 @@ pipeline {
         stage('Run Database Migrations') {
             steps {
 
-                bat '''
+                powershell '''
                 kubectl wait --for=condition=Ready pod -l app=backend --timeout=120s
 
-                for /f %%i in ('kubectl get pods -l "app=backend" --field-selector=status.phase=Running -o jsonpath^="{.items[-1:].metadata.name}"') do (
-                    kubectl exec %%i -- python manage.py migrate
-                )
+                $pod = kubectl get pods -l app=backend --field-selector=status.phase=Running -o jsonpath="{.items[-1:].metadata.name}"
+
+                kubectl exec $pod -- python manage.py migrate
                 '''
             }
         }
