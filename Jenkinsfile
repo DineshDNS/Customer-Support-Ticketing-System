@@ -80,9 +80,9 @@ pipeline {
             steps {
 
                 bat '''
-                kubectl get pods -l app=backend
+                kubectl wait --for=condition=Ready pod -l app=backend --timeout=120s
 
-                for /f %%i in ('kubectl get pods -l "app=backend" -o jsonpath^="{.items[0].metadata.name}"') do (
+                for /f %%i in ('kubectl get pods -l "app=backend" --field-selector=status.phase=Running -o jsonpath^="{.items[-1:].metadata.name}"') do (
                     kubectl exec %%i -- python manage.py migrate
                 )
                 '''
