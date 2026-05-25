@@ -58,6 +58,24 @@ pipeline {
             }
         }
 
+        stage('Deploy to AWS EC2') {
+
+            steps {
+
+                sshagent(credentials: ['ec2-ssh']) {
+
+                    bat '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@13.235.128.59 "
+                        cd ~/project &&
+                        docker compose pull &&
+                        docker compose up -d &&
+                        docker exec project-backend-1 python manage.py migrate
+                    "
+                    '''
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
 
@@ -76,7 +94,7 @@ pipeline {
             }
         }
 
-        stage('Run Database Migrations') {
+        stage('Run Kubernetes Database Migrations') {
             steps {
 
                 powershell '''
@@ -101,7 +119,7 @@ pipeline {
 
         success {
 
-            echo 'Full CI/CD Kubernetes Deployment Completed Successfully!'
+            echo 'Full CI/CD Deployment Completed Successfully!'
         }
 
         failure {
