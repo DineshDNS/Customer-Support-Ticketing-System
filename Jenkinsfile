@@ -11,6 +11,7 @@ pipeline {
 
         stage('Clone Repository') {
             steps {
+
                 git branch: 'main',
                 url: 'https://github.com/DineshDNS/Customer-Support-Ticketing-System.git'
             }
@@ -18,7 +19,9 @@ pipeline {
 
         stage('Build Backend Image') {
             steps {
+
                 dir('BackEnd') {
+
                     bat 'docker build -t %BACKEND_IMAGE% .'
                 }
             }
@@ -26,7 +29,9 @@ pipeline {
 
         stage('Build Frontend Image') {
             steps {
+
                 dir('FrontEnd') {
+
                     bat 'docker build -t %FRONTEND_IMAGE% .'
                 }
             }
@@ -48,31 +53,25 @@ pipeline {
 
         stage('Push Backend Image') {
             steps {
+
                 bat 'docker push %BACKEND_IMAGE%'
             }
         }
 
         stage('Push Frontend Image') {
             steps {
+
                 bat 'docker push %FRONTEND_IMAGE%'
             }
         }
 
         stage('Deploy to AWS EC2') {
-
             steps {
 
-                sshagent(credentials: ['ec2-ssh']) {
-
-                    bat '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@13.235.128.59 "
-                        cd ~/project &&
-                        docker compose pull &&
-                        docker compose up -d &&
-                        docker exec project-backend-1 python manage.py migrate
-                    "
-                    '''
-                }
+                bat '''
+                ssh -o StrictHostKeyChecking=no -i C:\\Users\\user\\Downloads\\terraform-key.pem ubuntu@13.235.128.59 ^
+                "cd ~/project && docker compose pull && docker compose up -d && docker exec project-backend-1 python manage.py migrate"
+                '''
             }
         }
 
