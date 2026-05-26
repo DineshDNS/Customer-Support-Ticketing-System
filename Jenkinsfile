@@ -65,12 +65,11 @@ pipeline {
             }
         }
 
-        stage('Deploy to AWS EC2') {
+        stage('Deploy with Ansible') {
             steps {
 
                 bat '''
-                ssh -o StrictHostKeyChecking=no -i C:\\Users\\user\\Downloads\\terraform-key.pem ubuntu@13.235.128.59 ^
-                "cd ~/project && docker compose pull && docker compose up -d && docker exec project-backend-1 python manage.py migrate"
+                wsl ansible-playbook -i /home/dp/ansible-project/inventory /home/dp/ansible-project/deploy-app.yml
                 '''
             }
         }
